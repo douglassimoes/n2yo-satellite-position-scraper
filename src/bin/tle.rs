@@ -4,10 +4,9 @@ use serde_json::Value;
 use std::error::Error;
 use dotenv::dotenv;
 use std::env;
+ 
+use satellite_info::{SatelliteInfo, SatellitePosition,SatelliteInfoList};
 
-mod satellite_info;
-use satellite_info::{SatelliteInfo,SatellitePosition};
-  
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
 
@@ -46,26 +45,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             satellite_position: None,
     };
 
-    println!("{:?}", sat_info); 
-
-    let binding = sat_info.tle.unwrap().replace("\\\"","").replace("\"","");
-    let tle_lines: Vec<&str> = binding.split("\\r\\n").collect();
-
-    println!("{:?}",tle_lines);
-    
-    // code for sgp4 crate
-    let elements = sgp4::Elements::from_tle(
-        Some("Space Station".to_owned()),
-        tle_lines[0].as_bytes(),
-        tle_lines[1].as_bytes(),
-    )?;
-    let constants = sgp4::Constants::from_elements(&elements)?;
-    for hours in 0..24 {
-        println!("t = {} min", hours * 60);
-        let prediction = constants.propagate(sgp4::MinutesSinceEpoch((hours * 60) as f64))?;
-        println!("    r = {:?} km", prediction.position);
-        println!("    ṙ = {:?} km.s⁻¹", prediction.velocity);
-    }
+    println!("{:?}", sat_info);
 
     Ok(())
 }
